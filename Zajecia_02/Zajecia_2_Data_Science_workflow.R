@@ -48,7 +48,7 @@ kraje_2[is.na(kraje_2$Internet_proc.), ]
 
 
 # Czyszczenie danych
-# W ramce danych kraje_2, w kolumnie Region s¹ kategorie, w których nazwie jest znak &:
+# W ramce danych kraje_2, w kolumnie Region sÄ… kategorie, w ktÃ³rych nazwie jest znak &:
 levels(kraje_2$Region)
 
 kraje_2$Region <- gsub("&", "and", kraje_2$Region)
@@ -56,10 +56,10 @@ kraje_2$Region <- gsub("&", "and", kraje_2$Region)
 kraje_2$Region = as.factor(kraje_2$Region)
 levels(kraje_2$Region)
 
-#   £¹czenie (scalanie) ramek danych kraje_1 i kraje_2
+#   ÅÄ…czenie (scalanie) ramek danych kraje_1 i kraje_2
 kraje = merge(kraje_1, kraje_2, by.x="Kod", by.y="Kod_kraju")
 
-# usuniêcie kolumny po z³¹czeniu
+# usuniÄ™cie kolumny po zÅ‚Ä…czeniu
 kraje$Nazwa = NULL
 
 summary(kraje)
@@ -91,27 +91,27 @@ kraje = kraje %>%
 kraje = kraje %>%
   mutate(PKB_per_capita = PKB / Populacja)
 
-# Wyœwietl kraje, w których % poziom urbanizacji jest wiêkszy ni¿ 50
+# WyÅ›wietl kraje, w ktÃ³rych % poziom urbanizacji jest wiÄ™kszy niÅ¼ 50
 kraje %>%
   filter(Urbanizacja_proc. > 50)
 
 
-# Wyœwietl tylko dane pokazuj¹ce zmienne Panstwo, Region, PKB, Populacja_mln
+# WyÅ›wietl tylko dane pokazujÄ…ce zmienne Panstwo, Region, PKB, Populacja_mln
 kraje %>%
   select(Panstwo, Region, PKB, Populacja_mln)
 
-# Posortuj kraje wed³ug przyrostu populacji rosn¹co
+# Posortuj kraje wedÅ‚ug przyrostu populacji rosnÄ…co
 kraje %>%
   arrange(Przyrost_populacji)
 
 
-# Posortuj kraje wed³ug przyrostu populacji malej¹co
+# Posortuj kraje wedÅ‚ug przyrostu populacji malejÄ…co
 kraje %>%
   arrange(desc(Przyrost_populacji))
 
 
-# Wybierz kraje z PKB wiêkszym ni¿ 1 bilion, posortuj je rosn¹co wzglêdem PKB 
-# i wyœwietl nazwê pañstwa, PKB i PKB per capita. Ile jest takich krajów?
+# Wybierz kraje z PKB wiÄ™kszym niÅ¼ 1 bilion, posortuj je rosnÄ…co wzglÄ™dem PKB 
+# i wyÅ›wietl nazwÄ™ paÅ„stwa, PKB i PKB per capita. Ile jest takich krajÃ³w?
 kraje %>%
   filter(PKB > 1e12) %>%
   arrange(PKB) %>%
@@ -121,26 +121,26 @@ kraje %>%
 
 # Wybierz kraje z regionu Afryki Subsaharyjskiej, 
 # wybierz zmienne Panstwo, PKB_per_capita, Populacja_mln, Urbanizacja,
-# a nastêpnie posortuj malej¹co po PKB per capita
+# a nastÄ™pnie posortuj malejÄ…co po PKB per capita
 kraje %>%
   filter(Region == "Sub-Saharan Africa") %>%
   select(Panstwo, PKB_per_capita, Populacja_mln, Urbanizacja_proc.) %>%
   arrange(desc(PKB_per_capita))
 
-# Wyœwietl tylko te kraje, które s¹ bogatsze ni¿ œrednia regionu
+# WyÅ›wietl tylko te kraje, ktÃ³re sÄ… bogatsze niÅ¼ Å›rednia regionu
 bogate = kraje %>%
   group_by(Region) %>%
   filter(PKB_per_capita > mean(PKB_per_capita, na.rm = TRUE))
 
 
 
-# ZnajdŸ najwiêksz¹ wartoœæ PKB per capita w ca³ym zbiorze krajów
+# ZnajdÅº najwiÄ™kszÄ… wartoÅ›Ä‡ PKB per capita w caÅ‚ym zbiorze krajÃ³w
 kraje %>%
   summarise(max_PKB_per_capita = max(PKB_per_capita, na.rm = TRUE))
 
 
 
-# ZnajdŸ najwiêksz¹ i najmniejsz¹ wartoœæ Populacji w mln w ca³ym zbiorze krajów
+# ZnajdÅº najwiÄ™kszÄ… i najmniejszÄ… wartoÅ›Ä‡ Populacji w mln w caÅ‚ym zbiorze krajÃ³w
 kraje %>%
   summarise(
     min_populacja = min(Populacja_mln, na.rm = TRUE),
@@ -148,24 +148,24 @@ kraje %>%
 
 
 
-# Oblicz œredni¹ populacjê w ca³ym zbiorze krajów (jedna liczba dla ca³ej ramki)
+# Oblicz Å›redniÄ… populacjÄ™ w caÅ‚ym zbiorze krajÃ³w (jedna liczba dla caÅ‚ej ramki)
 kraje %>%
   summarise(srednia_populacja = mean(Populacja_mln, na.rm = TRUE))
 
 
-# Ile krajów jest w ca³ym zbiorze danych?
+# Ile krajÃ³w jest w caÅ‚ym zbiorze danych?
 kraje %>%
   summarise(liczba_krajow = n())
 
 
 
-# Policz, ile krajów jest w ka¿dym regionie
+# Policz, ile krajÃ³w jest w kaÅ¼dym regionie
 kraje %>%
   group_by(Region) %>%
   summarise(liczba_krajow = n())
 
 
-# Dla ka¿dego regionu œwiata: oblicz liczbê krajów (n), œredni % dostêp do internetu i œredni % poziom urbanizacji, a nastêpnie posortuj regiony malej¹co wg œredniego % dostêpu do internetu
+# Dla kaÅ¼dego regionu Å›wiata: oblicz liczbÄ™ krajÃ³w (n), Å›redni % dostÄ™p do internetu i Å›redni % poziom urbanizacji, a nastÄ™pnie posortuj regiony malejÄ…co wg Å›redniego % dostÄ™pu do internetu
 kraje %>%
   group_by(Region) %>%
   summarise(
@@ -195,10 +195,10 @@ ggplot(kraje, aes(x = Urbanizacja_proc., y = PKB_per_capita, color = Region)) +
   scale_y_log10(labels = scales::comma) +
   labs(
     title = "Urbanizacja a PKB per capita",
-    subtitle = "Czy bardziej zurbanizowane kraje s¹ bogatsze?",
-    x = "Urbanizacja (% ludnoœci miejskiej)",
+    subtitle = "Czy bardziej zurbanizowane kraje sÄ… bogatsze?",
+    x = "Urbanizacja (% ludnoÅ›ci miejskiej)",
     y = "PKB per capita (USD, skala log)",
-    color = "Region œwiata"
+    color = "Region Å›wiata"
   ) +
   theme_minimal() +
   theme(
@@ -223,13 +223,13 @@ ggplot(kraje, aes(x = Populacja_mln, y = PKB, size = PKB_per_capita, color = Reg
 
 
 
-# 4. Prosty wykres s³upkowy: liczba krajów w regionach 
+# 4. Prosty wykres sÅ‚upkowy: liczba krajÃ³w w regionach 
 ggplot(kraje, aes(x = Region)) +
   geom_bar(fill = "steelblue", color = "white") +
   labs(
-    title = "Liczba krajów w regionach œwiata",
+    title = "Liczba krajÃ³w w regionach Å›wiata",
     x = "Region",
-    y = "Liczba krajów"
+    y = "Liczba krajÃ³w"
   ) +
   theme_minimal() +
   theme(
@@ -237,7 +237,7 @@ ggplot(kraje, aes(x = Region)) +
     plot.title = element_text(hjust = 0.5))
 
 
-# 5. Zaawansowany wykres s³upkowy poziomy: TOP 15 najbogatszych krajów 
+# 5. Zaawansowany wykres sÅ‚upkowy poziomy: TOP 15 najbogatszych krajÃ³w 
 kraje %>%
   arrange(desc(PKB_per_capita)) %>%
   head(15) %>%
@@ -246,7 +246,7 @@ kraje %>%
   coord_flip() +
   scale_y_continuous(labels = scales::comma) +
   labs(
-    title = "TOP 15 najbogatszych krajów œwiata (2016)",
+    title = "TOP 15 najbogatszych krajÃ³w Å›wiata (2016)",
     subtitle = "PKB per capita w USD",
     x = NULL,
     y = "PKB per capita (USD)",
@@ -259,17 +259,17 @@ kraje %>%
 
 
 
-# 6. Wykres pude³kowy (boxplot): dostêp do internetu wed³ug regionów 
+# 6. Wykres pudeÅ‚kowy (boxplot): dostÄ™p do internetu wedÅ‚ug regionÃ³w 
 ggplot(kraje, aes(x = reorder(Region, Internet_proc., FUN = median), 
                   y = Internet_proc., fill = Region)) +
   geom_boxplot(alpha = 0.7) +
   geom_jitter(width = 0.2, alpha = 0.3, size = 1) +
   coord_flip() +
   labs(
-    title = "Dostêp do internetu wed³ug regionów œwiata",
-    subtitle = "(punkty to poszczególne kraje)",
+    title = "DostÄ™p do internetu wedÅ‚ug regionÃ³w Å›wiata",
+    subtitle = "(punkty to poszczegÃ³lne kraje)",
     x = NULL,
-    y = "Dostêp do internetu (% populacji)",
+    y = "DostÄ™p do internetu (% populacji)",
     fill = "Region"
   ) +
   theme_minimal() +
@@ -277,16 +277,16 @@ ggplot(kraje, aes(x = reorder(Region, Internet_proc., FUN = median),
     plot.title = element_text(face = "bold", size = 14),
     legend.position = "none")
 
-# 7. Wykres pude³kowy (boxplot): przyrost populacji wed³ug regionów 
-# (mediana, rozrzut i obserwacje odstaj¹ce)
+# 7. Wykres pudeÅ‚kowy (boxplot): przyrost populacji wedÅ‚ug regionÃ³w 
+# (mediana, rozrzut i obserwacje odstajÄ…ce)
 ggplot(kraje, aes(x = Region, y = Przyrost_populacji)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_boxplot(outlier.alpha = 0.3) +
   geom_jitter(width = 0.15, alpha = 0.5) +
   coord_flip() +
   labs(
-    title = "Tempo przyrostu populacji w regionach œwiata",
-    subtitle = "(punkty to poszczególne kraje, linia przerywana = 0%)",
+    title = "Tempo przyrostu populacji w regionach Å›wiata",
+    subtitle = "(punkty to poszczegÃ³lne kraje, linia przerywana = 0%)",
     x = "Region",
     y = "Przyrost populacji (%)"
   ) +
