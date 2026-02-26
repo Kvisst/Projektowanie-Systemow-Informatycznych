@@ -7,12 +7,13 @@ setwd("C:/Users/mg471937/Desktop/R")
 # install.packages("dplyr")
 # install.packages("ggplot2")
 # install.packages("writexl")
+# install.packages("rmarkdown")
 
 library(writexl)
 library(ggplot2)
 library(dplyr)
 library(readxl)
-
+library(rmarkdown)
 
 
 kraje_1 = read.table("kraje_makro_1.csv", header=TRUE, sep=",", dec=".")
@@ -302,6 +303,7 @@ write.csv(kraje, "kraje_analiza.csv")
 
 # Zapisanie ramki danych do pliku Excel wymaga pakietu writexl:
 write_xlsx(kraje, "kraje_wynik.xlsx")
+
 
 
 
