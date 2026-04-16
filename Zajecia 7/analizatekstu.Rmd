@@ -1,0 +1,110 @@
+---
+title: "Analiza tekstu"
+output: html_document
+date: "2026-04-16"
+---
+
+```{r setup, include=FALSE}
+library(tm)
+library(SnowballC)
+library(cluster)
+library(wordcloud)
+library(factoextra)
+library(RColorBrewer)
+library(ggplot2)
+library(dplyr)
+library(ggrepel)
+library(DT)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+# Ustaw katalog roboczy (ZMIEN jeśli trzeba)
+setwd("C:/Users/damia/OneDrive/Pulpit/R/PSI")
+
+docs <- DirSource("Zajecia 7")
+corpus <- VCorpus(docs)
+
+# Podgląd
+inspect(corpus[1])
+
+# Kodowanie UTF-8
+corpus <- tm_map(corpus, content_transformer(function(x) iconv(x, to = "UTF-8", sub = "byte")))
+
+# Funkcja do usuwania wzorców
+toSpace <- content_transformer(function (x, pattern) gsub(pattern, " ", x))
+
+corpus <- tm_map(corpus, toSpace, "@\\w+")
+corpus <- tm_map(corpus, toSpace, "http\\w*")
+corpus <- tm_map(corpus, toSpace, "www")
+corpus <- tm_map(corpus, toSpace, "[ \t]{2,}")
+
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, stripWhitespace)
+
+corpus_copy <- corpus
+corpus_stemmed <- tm_map(corpus, stemDocument)
+
+complete_stems <- content_transformer(function(x, dict) {
+  x <- unlist(strsplit(x, " "))
+  x <- stemCompletion(x, dictionary = corpus_copy, type="longest")
+  paste(x, collapse = " ")
+})
+
+corpus_completed <- tm_map(corpus_stemmed, complete_stems, dict = corpus_copy)
+corpus_completed <- tm_map(corpus_completed, stripWhitespace)
+
+dtm <- DocumentTermMatrix(corpus_completed)
+dtm_m <- as.matrix(dtm)
+
+dtm_m[1:5, 1:5]
+
+v <- sort(colSums(dtm_m), decreasing = TRUE)
+dtm_df <- data.frame(word = names(v), freq = v)
+
+head(dtm_df, 10)
+
+wordcloud(words = dtm_df$word,
+          freq = dtm_df$freq,
+          min.freq = 5,
+          colors = brewer.pal(8, "Dark2"))
+
+fviz_nbclust(t(dtm_m), kmeans, method = "silhouette")
+set.seed(123)
+k <- 3
+
+klastrowanie <- kmeans(dtm_m, centers = k)
+
+fviz_cluster(list(data = dtm_m, cluster = klastrowanie$cluster))
+
+cluster_info <- lapply(1:k, function(i) {
+  cluster_docs_idx <- which(klastrowanie$cluster == i)
+  cluster_docs <- dtm_m[cluster_docs_idx, , drop = FALSE]
+  word_freq <- sort(colSums(cluster_docs), decreasing = TRUE)
+
+  data.frame(
+    Klaster = i,
+    Liczba_dokumentów = length(cluster_docs_idx),
+    Top_5_słów = paste(names(word_freq)[1:5], collapse = ", ")
+  )
+})
+
+cluster_info_df <- do.call(rbind, cluster_info)
+
+documents_clusters <- data.frame(
+  Dokument = names(corpus),
+  Klaster = klastrowanie$cluster
+)
+
+final_table <- left_join(documents_clusters, cluster_info_df, by = "Klaster")
+
+datatable(final_table)
+
+ggplot(documents_clusters, aes(x = reorder(Dokument, Klaster), fill = factor(Klaster))) +
+  geom_bar() +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Przypisanie dokumentów do klastrów")
+
